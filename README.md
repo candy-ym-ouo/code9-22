@@ -56,6 +56,31 @@ npx playwright install chromium
 
 ---
 
+## 发布质量门禁
+
+```bash
+npm run release:gate
+```
+
+四道门禁按序自动执行，**任一失败即阻断后续门禁与发布产物**（退出码非 0，`release/` 不生成、不更新）：
+
+| # | 门禁 | 内容 |
+| --- | --- | --- |
+| 1 | 类型检查 | shared / server / web 三个工作区 `tsc --noEmit` |
+| 2 | 迁移回放 | 全新空库从零应用全部迁移 → 再回放一遍验证幂等 → `_migration` 与磁盘文件对账 → `integrity_check` / `foreign_key_check` |
+| 3 | 接口契约 | 拉起临时实例（隔离临时库 + `WEATHER_PROVIDER=fixture`，不依赖外网）跑 68 项真实 HTTP 冒烟断言 |
+| 4 | 前端构建 | `tsc && vite build`，并校验产物非空 |
+
+全部通过后生成**可追溯**的版本与校验清单：
+
+- `release/manifest.json` —— 机器可读：版本、各工作区版本、Node/平台、Git 提交、四道门禁结果与耗时、迁移文件与 lockfile 的 SHA-256、dist 逐文件校验和与产物组合哈希
+- `release/RELEASE-CHECKLIST.md` —— 人类可读校验清单
+- `release/history/<时间戳>-v<版本>.json` —— 历次归档，只增不改
+
+门禁全程使用临时目录，**不会触碰 `./data` 真实数据**。CI 见 `.github/workflows/release-gate.yml`（push/PR 自动执行，通过后清单作为构件归档 90 天）。
+
+---
+
 ## 它到底做了什么（核心闭环）
 
 ```

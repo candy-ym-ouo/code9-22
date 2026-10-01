@@ -28,10 +28,15 @@
     "test": "npm --workspace @flil/server run test",
     "test:e2e": "npm --workspace @flil/web run test:e2e",
     "typecheck": "npm --workspace @flil/shared run typecheck && npm --workspace @flil/server run typecheck && npm --workspace @flil/web run typecheck",
+    "db:verify-replay": "npm --workspace @flil/server run db:verify-replay",
+    "release:gate": "node scripts/release-gate.mjs",
     "setup": "npm install && npm run db:migrate && npm run db:seed"
   },
   "devDependencies": {
     "concurrently": "^9.1.2",
     "typescript": "^5.7.3"
+  },
+  "dependencies": {
+    "sharp": "^0.35.5"
   }
 }
