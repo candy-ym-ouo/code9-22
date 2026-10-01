@@ -1,7 +1,7 @@
 node_modules/
-data/
 dist/
+data/
+release/
 .env
-*.log
-apps/web/playwright-report/
-apps/web/test-results/
+*.local
+.DS_Store

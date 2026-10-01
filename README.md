@@ -56,6 +56,38 @@ npx playwright install chromium
 
 ---
 
+## 发布质量门禁
+
+四道门禁**按序自动执行，任一失败即阻断产物**（快速失败，后续门禁不再运行）：
+
+| # | 门禁 | 命令 | 验证内容 |
+| --- | --- | --- | --- |
+| 1 | 类型检查 | `npm run typecheck` | shared / server / web 三个工作区 `tsc --noEmit` |
+| 2 | 迁移回放 | `npm run db:replay` | 全新临时库重放全部迁移与基线种子：顺序、幂等、`_migration` 账本一致、35 张关键表、外键完整性、零业务数据（共 10 项检查） |
+| 3 | 接口契约 | `npm test` + 真实 HTTP 冒烟 | 76 个 vitest 契约/单元测试；再用临时库+临时端口启动真实服务端跑 68 项 HTTP 断言 |
+| 4 | 前端构建 | `npm run build` | `tsc --noEmit && vite build`，并校验 `dist` 非空 |
+
+```bash
+npm run release         # 完整发布：门禁全过才产出 release/flil-<版本>-<构建号>.tar.gz
+npm run release:check   # 只跑门禁不出产物（PR / 推送检查）
+npm run release:verify  # 复核产物 sha256 与发布清单一致（可独立复算）
+```
+
+**可追溯**：每次运行（无论成败）都在 `release/` 下留痕——
+
+```
+release/
+├── manifest-<构建号>.json    # 版本、环境、各门禁耗时/退出码、迁移与产物 sha256
+├── checklist-<构建号>.md     # 人可读的校验清单
+├── logs/<构建号>/            # 每道门禁的完整日志
+├── history.jsonl             # 全部发布历史的审计流水（含失败记录）
+└── latest.json               # 最近一次成功发布的指针
+```
+
+CI 已内置同一套门禁（`.github/workflows/quality-gate.yml`）：推送/PR 跑 `release:check`，打 `v*` 标签跑完整 `release` 并上传产物。
+
+---
+
 ## 它到底做了什么（核心闭环）
 
 ```

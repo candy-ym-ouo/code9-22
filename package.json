@@ -20,6 +20,7 @@
     "db:migrate": "npm --workspace @flil/server run db:migrate",
     "db:seed": "npm --workspace @flil/server run db:seed",
     "db:reset": "npm --workspace @flil/server run db:reset",
+    "db:replay": "npm --workspace @flil/server run db:replay",
     "job:scan-windows": "npm --workspace @flil/server run job:scan-windows",
     "job:dispatch": "npm --workspace @flil/server run job:dispatch",
     "backup": "npm --workspace @flil/server run backup",
@@ -28,6 +29,9 @@
     "test": "npm --workspace @flil/server run test",
     "test:e2e": "npm --workspace @flil/web run test:e2e",
     "typecheck": "npm --workspace @flil/shared run typecheck && npm --workspace @flil/server run typecheck && npm --workspace @flil/web run typecheck",
+    "release": "node scripts/release.mjs",
+    "release:check": "node scripts/release.mjs --gates-only",
+    "release:verify": "node scripts/verify-artifact.mjs",
     "setup": "npm install && npm run db:migrate && npm run db:seed"
   },
   "devDependencies": {
